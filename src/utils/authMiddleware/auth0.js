@@ -7,10 +7,10 @@ const jwtCheck = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: env.parsed.AUTH_JWT_URI,
+    jwksUri: env.parsed.AUTH_JWT_URI ?? process.env.AUTH_JWT_URI,
   }),
-  audience: env.parsed.AUTH_AUDIENCE,
-  issuer: env.parsed.AUTH_ISSUER,
+  audience: env.parsed.AUTH_AUDIENCE ?? process.env.AUTH_AUDIENCE,
+  issuer: env.parsed.AUTH_ISSUER ?? process.env.AUTH_ISSUER,
   algorithms: ['RS256'],
 });
 
