@@ -139,7 +139,7 @@ const start = () => {
         if (err) {
           console.log(err);
         } else {
-          console.log(`Started Server : ${process.env.PORT}`);
+          console.log(`Started Server  @  ${server.address()}`);
         }
       });
     }
