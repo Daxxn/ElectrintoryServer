@@ -1,6 +1,6 @@
 var jwt = require('express-jwt');
 var jwks = require('jwks-rsa');
-const env = require('dotenv').config();
+// const env = require('dotenv').config();
 
 const jwtCheck = jwt({
   secret: jwks.expressJwtSecret({
