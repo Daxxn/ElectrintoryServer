@@ -1,15 +1,16 @@
 var jwt = require('express-jwt');
 var jwks = require('jwks-rsa');
+const env = require('dotenv').config();
 
 const jwtCheck = jwt({
   secret: jwks.expressJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: process.env.AUTH_JWT_URI,
+    jwksUri: env.parsed.AUTH_JWT_URI,
   }),
-  audience: process.env.AUTH_AUDIENCE,
-  issuer: process.env.AUTH_ISSUER,
+  audience: env.parsed.AUTH_AUDIENCE,
+  issuer: env.parsed.AUTH_ISSUER,
   algorithms: ['RS256'],
 });
 
