@@ -49,15 +49,23 @@ const apiRoutes = (app, db) => {
 // #region Middleware
 const initMiddleware = (app) => {
   app.use(
+    // cors({
+    //   origin: [process.env.CLIENT],
+    //   exposedHeaders: ['Access-Control-Allow-Origin', 'Content-Type'],
+    //   allowedHeaders: [
+    //     'Access-Control-Allow-Origin',
+    //     'Content-Type',
+    //     'Authorization',
+    //   ],
+    //   credentials: true,
+    // })
+
+    // CORS Test... IDK if this will work.
     cors({
-      origin: [process.env.CLIENT],
-      exposedHeaders: ['Access-Control-Allow-Origin', 'Content-Type'],
-      allowedHeaders: [
-        'Access-Control-Allow-Origin',
-        'Content-Type',
-        'Authorization',
-      ],
-      credentials: true,
+      origin: (origin, callback) => {
+        callback(null, true);
+      },
+      preflightContinue: true,
     })
   );
   app.use(express.json());
