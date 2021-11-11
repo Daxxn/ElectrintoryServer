@@ -36,7 +36,7 @@ const homeRoute = (app) => {
 const apiRoutes = (app, db) => {
   const apiRouter = express.Router();
   // Auth Init
-  if (env.parsed.AUTH0 ?? process.env.AUTH0 === 'true') {
+  if (process.env.AUTH0 === 'true') {
     apiRouter.use(authCheck);
   }
   apiRouter.use('/user', userRoute());
@@ -50,7 +50,7 @@ const apiRoutes = (app, db) => {
 const initMiddleware = (app) => {
   app.use(
     cors({
-      origin: [env.parsed.CLIENT ?? process.env.CLIENT],
+      origin: [process.env.CLIENT],
       exposedHeaders: ['Access-Control-Allow-Origin', 'Content-Type'],
       allowedHeaders: [
         'Access-Control-Allow-Origin',
@@ -63,7 +63,7 @@ const initMiddleware = (app) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static(path.join(__dirname, 'public')));
-  if (env.parsed.DEBUG ?? process.env.DEBUG) {
+  if (process.env.DEBUG) {
     app.use(debug('dev'));
   }
 };
@@ -72,7 +72,7 @@ const initMiddleware = (app) => {
 // #region Error Handling
 const initErrorHandler = (app) => {
   app.use((err, req, res, next) => {
-    if (env.parsed.DEBUG ?? process.env.DEBUG) {
+    if (process.env.DEBUG) {
       res.locals.mesage = err.message;
       res.locals.err = err;
       console.log(err);
@@ -86,9 +86,9 @@ const initErrorHandler = (app) => {
 // const initSession = (app) => {
 //   app.use(
 //     session({
-//       secret: env.parsed.SECRET ?? process.env.SECRET,
+//       secret: process.env.SECRET,
 //       store: MongoSession.create({
-//         mongoUrl: env.parsed.DB_CONNECT ?? process.env.DB_CONNECT,
+//         mongoUrl: process.env.DB_CONNECT,
 //       }),
 //       cookie: {
 //         secure: false,
@@ -103,11 +103,7 @@ const initErrorHandler = (app) => {
 
 // #region Database
 const databaseConnection = (app, callback) => {
-  const db = mongoose.connect(
-    env.parsed.DB_CONNECT ?? process.env.DB_CONNECT,
-    {},
-    callback
-  );
+  const db = mongoose.connect(process.env.DB_CONNECT, {}, callback);
   apiRoutes(app, db);
   return db;
 };
@@ -131,11 +127,11 @@ const start = () => {
       console.log(err);
     } else {
       console.log('Connected to database');
-      server.listen(env.parsed.PORT ?? process.env.PORT, (err) => {
+      server.listen(process.env.PORT, (err) => {
         if (err) {
           console.log(err);
         } else {
-          console.log(`Started Server : ${env.parsed.PORT ?? process.env.PORT}`);
+          console.log(`Started Server : ${process.env.PORT}`);
         }
       });
     }
