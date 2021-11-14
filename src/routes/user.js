@@ -69,38 +69,6 @@ const buildRoute = () => {
       next(err);
     }
   });
-  // router.patch('/:id', async (req, res, next) => {
-  //   try {
-  //     const { body } = req;
-  //     if (body) {
-  //       const foundUser = await userModel.findById(req.params.id);
-  //       if (foundUser) {
-  //         var data = body;
-  //         if (data._id) {
-  //           delete data._id;
-  //         }
-  //         if (data.__v) {
-  //           delete data.__v;
-  //         }
-  //         Object.assign(foundUser, data);
-  //         const savedUser = await foundUser.save();
-  //         res.status(201).json({
-  //           user: savedUser,
-  //         });
-  //       } else {
-  //         res.status(400).json({
-  //           message: 'No User Found.',
-  //         });
-  //       }
-  //     } else {
-  //       res.status(400).json({
-  //         message: 'No Body',
-  //       });
-  //     }
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // });
   // #endregion
 
   // #region DELETE
@@ -185,12 +153,12 @@ const buildRoute = () => {
           });
         } else {
           res.status(400).json({
-            message: 'User exists already',
+            message: 'User already exists.',
           });
         }
       } else {
         res.status(400).json({
-          message: 'No Body',
+          message: 'No Body.',
         });
       }
     } catch (err) {

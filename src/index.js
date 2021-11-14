@@ -12,7 +12,15 @@ const http = require('http');
 // const { messageHelper, messages } = require('./utils/messageHelper');
 
 const authCheck = require('./utils/authMiddleware/auth0');
-// const oldAuthCheck = require('./utils/authMiddleware/oldAuth');
+const Config = require('./utils/config');
+
+const errorCallback = (err) => {
+  if (err) {
+    if (process.env.DEBUG) {
+      console.log(err);
+    }
+  }
+};
 
 // #region Routes
 const userRoute = require('./routes/user');
@@ -33,12 +41,16 @@ const homeRoute = (app) => {
 // #endregion
 
 // #region Build Routes
-const apiRoutes = (app, db) => {
+/**
+ * Build API routes
+ * @param {express} app Express App
+ * @param {Config} config Config Object
+ * @param {mongoose} db Mongoose Database
+ */
+const apiRoutes = (app, config, db) => {
   const apiRouter = express.Router();
   // Auth Init
-  if (process.env.AUTH0 === 'true') {
-    apiRouter.use(authCheck);
-  }
+  apiRouter.use(authCheck);
   apiRouter.use('/user', userRoute());
   apiRouter.use('/parts', partsRoute());
   apiRouter.use('/packages', packageRoute());
@@ -47,10 +59,15 @@ const apiRoutes = (app, db) => {
 // #endregion
 
 // #region Middleware
-const initMiddleware = (app) => {
+/**
+ * Initialize all necessary middleware.
+ * @param {express} app Express App
+ * @param {Config} config Config object
+ */
+const initMiddleware = (app, config) => {
   app.use(
     cors({
-      origin: [process.env.CLIENT],
+      origin: [config.client],
       exposedHeaders: ['Access-Control-Allow-Origin', 'Content-Type'],
       allowedHeaders: [
         'Access-Control-Allow-Origin',
@@ -59,28 +76,20 @@ const initMiddleware = (app) => {
       ],
       credentials: true,
     })
-
-    // CORS Test... IDK if this will work. It didnt...
-    // cors({
-    //   origin: (origin, callback) => {
-    //     callback(null, true);
-    //   },
-    //   preflightContinue: true,
-    // })
   );
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static(path.join(__dirname, 'public')));
-  if (process.env.DEBUG) {
+  if (config.debug) {
     app.use(debug('dev'));
   }
 };
 // #endregion
 
 // #region Error Handling
-const initErrorHandler = (app) => {
+const initErrorHandler = (app, config) => {
   app.use((err, req, res, next) => {
-    if (process.env.DEBUG) {
+    if (config.debug) {
       res.locals.mesage = err.message;
       res.locals.err = err;
       console.log(err);
@@ -91,6 +100,7 @@ const initErrorHandler = (app) => {
 // #endregion
 
 // #region Session Init
+// TODO - Get express session working securely.
 // const initSession = (app) => {
 //   app.use(
 //     session({
@@ -110,17 +120,17 @@ const initErrorHandler = (app) => {
 // #endregion
 
 // #region Database
-const databaseConnection = (app, callback) => {
-  const db = mongoose.connect(process.env.DB_CONNECT, {}, callback);
+const databaseConnection = (app, config, callback) => {
+  const db = mongoose.connect(config.dbConnect, {}, callback);
   apiRoutes(app, db);
   return db;
 };
 // #endregion
 
 // #region Startup
-const startExpress = () => {
+const startExpress = (config) => {
   const app = express();
-  initMiddleware(app);
+  initMiddleware(app, config);
   // initSession(app);
   homeRoute(app);
   initErrorHandler(app);
@@ -128,14 +138,15 @@ const startExpress = () => {
 };
 
 const start = () => {
-  const app = startExpress();
+  const config = Config.build(errorCallback);
+  const app = startExpress(config);
   const server = http.createServer(app);
-  databaseConnection(app, (err) => {
+  databaseConnection(app, config, (err) => {
     if (err) {
       console.log(err);
     } else {
       console.log('Connected to database');
-      server.listen(process.env.PORT, (err) => {
+      server.listen(config.port, (err) => {
         if (err) {
           console.log(err);
         } else {
