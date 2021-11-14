@@ -9,7 +9,6 @@ const http = require('http');
 // const session = require('express-session');
 // const MongoSession = require('connect-mongo');
 // const userModel = require('./models/users');
-// const { messageHelper, messages } = require('./utils/messageHelper');
 
 const authCheck = require('./utils/authMiddleware/auth0');
 const Config = require('./utils/config');
