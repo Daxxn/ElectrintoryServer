@@ -14,8 +14,9 @@ class Config {
   }
 
   /**
-   * Run once at start. Builds the config object and pulls
-   * all the environment variables.
+   * PRIVATE. Builds the config object, pulls
+   * all the environment variables, and sends a
+   * message if some are missing.
    * @param {Function} callback error callback
    * @returns {Config} Setup config object
    */
@@ -28,21 +29,23 @@ class Config {
         jwt: process.env.AUTH_JWT_URI,
         port: process.env.PORT ?? 3131,
         secret: process.env.SECRET,
+        dbConnect: process.env.DB_CONNECT,
+        client: process.env.CLIENT,
       };
-      if (process.env.NODE_ENV === 'production') {
-        Object.assign(this._config, {
-          dbConnect: process.env.PROD_DB_CONNECT,
-          client: process.env.PROD_CLIENT,
-        });
-      } else {
-        Object.assign(this._config, {
-          dbConnect: process.env.DEV_DB_CONNECT,
-          client: process.env.DEV_CLIENT,
-        });
+      const variables = [];
+      const keys = Object.keys(this._config);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!this._config[key]) {
+          variables.push(key);
+        }
+      }
+      if (variables.length > 0) {
+        console.error('Missing ENV Variables!! ', variables);
       }
     } catch (err) {
       if (callback) {
-        callback(new Error(`Config build failure : ${err}`));
+        callback(new Error(`Unknown Config Build Failure : ${err}`));
       } else {
         throw err;
       }
